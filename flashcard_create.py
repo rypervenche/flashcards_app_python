@@ -114,6 +114,7 @@ def create_flashcards(create_study_edit_exit):
             want_to_edit = input("Would you like to continue editing? (y/n)\n")
             if want_to_edit == "n":
                 want_to_edit = False
+        create_flashcards(take_input)
 
 
     elif create_study_edit_exit.lower() == "x":
