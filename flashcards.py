@@ -43,21 +43,25 @@ def create_flashcards():
         mode_select()
 
 
-def study_flashcards():
+def get_decks():
     decks = list_decks()
     deck_to_edit = int(input("Which deck would you like to study? "))
     deck_choice = decks[deck_to_edit - 1][0]
     cursor.execute(f"SELECT Front, Back FROM flashcards WHERE Deck='{deck_choice}'")
-    flashcard_info_tuple = cursor.fetchall()
+    flashcards = cursor.fetchall()
+    return flashcards
+
+
+def study_flashcards():
+    flashcards = get_decks()
     studying = True
     while studying == True:
-        random.shuffle(flashcard_info_tuple)
-        for card_info_list in flashcard_info_tuple:
+        random.shuffle(flashcards)
+        for card_info_list in flashcards:
             print(card_info_list[0])
             try_again = True
             while try_again == True:
                 guess = input("Input your guess: ")
-
                 if guess.lower() == card_info_list[1].lower():
                     print("Correct!")
                     try_again = False
