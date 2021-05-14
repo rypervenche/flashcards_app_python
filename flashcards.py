@@ -16,6 +16,10 @@ def mode_select():
         editing()
     elif choice.lower() == "exit":
         save_and_exit()
+    else:
+        print("That's not a proper command. Try again.")
+        mode_select()
+
 
 
 def create_flashcards():
@@ -101,7 +105,6 @@ def list_cards():
 
 
 def editing():
-    print("This")
     edit_method = edit_select()
     front_and_back, deck_choice = list_cards()
     editing = True
