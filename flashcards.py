@@ -43,7 +43,7 @@ def create_flashcards():
         mode_select()
 
 
-def get_decks():
+def get_flashcards():
     decks = list_decks()
     deck_to_edit = int(input("Which deck would you like to study? "))
     deck_choice = decks[deck_to_edit - 1][0]
@@ -53,7 +53,7 @@ def get_decks():
 
 
 def study_flashcards():
-    flashcards = get_decks()
+    flashcards = get_flashcards()
     studying = True
     while studying == True:
         random.shuffle(flashcards)
