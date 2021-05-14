@@ -44,14 +44,9 @@ def create_flashcards():
 
 
 def study_flashcards():
-    counter = 1
-    cursor.execute("SELECT DISTINCT Deck FROM flashcards;")
-    decks_tuple = cursor.fetchall()
-    for distinct_deck_row in decks_tuple:
-        print(f" {counter}. {distinct_deck_row[0]}")
-        counter += 1
-    deck_choice = int(input("Which deck would you like to study? "))
-    deck_choice = decks_tuple[deck_choice - 1][0]
+    decks = list_decks()
+    deck_to_edit = int(input("Which deck would you like to study? "))
+    deck_choice = decks[deck_to_edit - 1][0]
     cursor.execute(f"SELECT Front, Back FROM flashcards WHERE Deck='{deck_choice}'")
     flashcard_info_tuple = cursor.fetchall()
     studying = True
