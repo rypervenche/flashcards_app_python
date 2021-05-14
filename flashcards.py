@@ -85,8 +85,8 @@ def edit_select():
 def list_decks():
     cursor.execute("SELECT DISTINCT Deck FROM flashcards;")
     decks = cursor.fetchall()
-    for deck_name, counter in enumerate(decks):
-        print(f" {counter}. {deck_name[0]}")
+    for counter, deck_name in enumerate(decks):
+        print(f" {counter + 1}. {deck_name[0]}")
     return decks
 
 
@@ -96,8 +96,8 @@ def list_cards():
     deck_choice = decks[deck_to_edit - 1][0]
     cursor.execute(f"SELECT Front, Back FROM flashcards WHERE Deck='{deck_choice}'")
     front_and_back = cursor.fetchall()
-    for card, counter in enumerate(front_and_back):
-        print(f"Card #{counter}: \n Front: {card[0]}\n Back: {card[1]}")
+    for counter, card in enumerate(front_and_back):
+        print(f"Card #{counter + 1}: \n Front: {card[0]}\n Back: {card[1]}")
     return front_and_back, deck_choice
 
 
@@ -139,14 +139,14 @@ def change_card():
     front_and_back, deck_choice = list_cards()
     changing = True
     while changing == True:
-        card_to_change = int(input("What number card would you like to delete? "))
+        card_to_change = int(input("What number card would you like to change? "))
         card_front = input("What do you want on the front of the card?\n")
         card_back = input("What doo you want on the back of the card?\n")
         confirmation = input(f"You are requesting update this card in {deck_choice} to:\n Front: {card_front}\n Back: {card_back}\nAre you sure you want to make these changes (y/n)? ")
         if confirmation == "y":
-            cursor.execute(f"""DELETE FROM flashcards WHERE Front="{front_and_back[card_to_change- 1][0]}" AND Back="{front_and_back[card_to_change - 1][1]}";""")
+            cursor.execute(f"""UPDATE flashcards SET Front="{front_and_back[card_to_change- 1][0]}", Back="{front_and_back[card_to_change - 1][1]}" WHERE Front="{front_and_back[card_to_change- 1][0]}" AND Back="{front_and_back[card_to_change - 1][1]}";""")
             connection.commit()
-            continue_changing = input("Your changed=s have been saved. Would you like to change another card in this deck (y/n)? ")
+            continue_changing = input("Your changes have been saved. Would you like to change another card in this deck (y/n)? ")
         else:
             continue_changing = input("Would you like to try again (y/n)? ")
         changing = False if continue_changing == "n" else True
