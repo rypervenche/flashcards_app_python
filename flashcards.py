@@ -54,15 +54,22 @@ def study_flashcards():
         random.shuffle(flashcard_info_tuple)
         for card_info_list in flashcard_info_tuple:
             print(card_info_list[0])
-            guess = input("Input your guess: ")
-            print("Correct!") if guess.lower() == card_info_list[1].lower() else print("Incorrect.")
+            try_again = True
+            while try_again == True:
+                guess = input("Input your guess: ")
 
-            # Add try again feature
-
+                if guess.lower() == card_info_list[1].lower():
+                    print("Correct!")
+                    try_again = False
+                else:
+                    continue_trying = input("Incorrect. Would you like to try again (y/n)? ")
+                    if continue_trying == "n":
+                        try_again = False
         continue_studying = input("You have finished studying this deck. Would you like to study it again (y/n)? ")
         if continue_studying == "n":
             continue_studying = input("Would you like to study another deck or exit the studying program (study/exit)? ")
-            studying = False if continue_studying == "study" else mode_select()
+            studying = False if continue_studying == "study" else True
+    mode_select()
 
 
 def edit_select():
