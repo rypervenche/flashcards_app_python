@@ -82,22 +82,27 @@ def edit_select():
         mode_select()
 
 
-def add_card():
-    counter = 1
+def list_decks():
     cursor.execute("SELECT DISTINCT Deck FROM flashcards;")
-    decks_tuple = cursor.fetchall()
-    for distinct_deck_row in decks_tuple:
-        print(f" {counter}. {distinct_deck_row[0]}")
-        counter += 1
+    decks = cursor.fetchall()
+    for deck_name, counter in enumerate(decks):
+        print(f" {counter}. {deck_name[0]}")
+    return decks
+
+
+def list_cards():
+    decks = list_decks()  
     deck_to_edit = int(input("Which deck would you like to edit?\n"))
-    deck_choice = decks_tuple[deck_to_edit - 1][0]
-    print(deck_to_edit)
-    cursor.execute(f"SELECT Front, Back FROM flashcards WHERE Deck='{deck_to_edit}'")
+    deck_choice = decks[deck_to_edit - 1][0]
+    cursor.execute(f"SELECT Front, Back FROM flashcards WHERE Deck='{deck_choice}'")
     front_and_back = cursor.fetchall()
-    counter = 1
-    for card in front_and_back:
+    for card, counter in enumerate(front_and_back):
         print(f"Card #{counter}: \n Front: {card[0]}\n Back: {card[1]}")
-        counter += 1
+    return front_and_back, deck_choice
+
+
+def add_card():
+    _, deck_choice = list_cards()
     adding = True
     while adding == True:    
         card_front = input("What do you want on the front of this card? ")
@@ -106,30 +111,16 @@ def add_card():
         if confirmation == "y":
             cursor.execute(f"""INSERT INTO flashcards VALUES ("{deck_choice}", "{card_front}", "{card_back}");""")
             connection.commit()
-            continue_creating = input("Your addition has been saved. Would you like to add another card (y/n)? ")
+            continue_adding = input("Your addition has been saved. Would you like to add another card (y/n)? ")
         else:
-            continue_creating = input("Would you like to try again (y/n)? ")
-        adding = False if continue_creating == "n" else True
+            continue_adding = input("Would you like to try again (y/n)? ")
+        adding = False if continue_adding == "n" else True
     mode_select()
 
 
 
 def delete_card():
-    counter = 1
-    cursor.execute("SELECT DISTINCT Deck FROM flashcards;")
-    decks_tuple = cursor.fetchall()
-    for distinct_deck_row in decks_tuple:
-        print(f" {counter}. {distinct_deck_row[0]}")
-        counter += 1
-    deck_to_edit = int(input("Which deck would you like to edit? "))
-    deck_choice = decks_tuple[deck_to_edit - 1][0]
-    print(deck_to_edit)
-    cursor.execute(f"SELECT Front, Back FROM flashcards WHERE Deck='{deck_to_edit}'")
-    front_and_back = cursor.fetchall()
-    counter = 1
-    for card in front_and_back:
-        print(f"Card #{counter}: \n Front: {card[0]}\n Back: {card[1]}")
-        counter += 1
+    front_and_back, deck_choice = list_cards()
     deleting = True
     while deleting == True:
         card_to_delete = int(input("What number card would you like to delete? "))
@@ -145,21 +136,7 @@ def delete_card():
 
 
 def change_card():
-    counter = 1
-    cursor.execute("SELECT DISTINCT Deck FROM flashcards;")
-    decks_tuple = cursor.fetchall()
-    for distinct_deck_row in decks_tuple:
-        print(f"{counter}. {distinct_deck_row[0]}")
-        counter += 1
-    deck_to_edit = int(input("Which deck would you like to edit?\n"))
-    deck_choice = decks_tuple[deck_to_edit - 1][0]
-    print(deck_to_edit)
-    cursor.execute(f"SELECT Front, Back FROM flashcards WHERE Deck='{deck_to_edit}'")
-    front_and_back = cursor.fetchall()
-    counter = 1
-    for card in front_and_back:
-        print(f"Card #{counter}: \n Front: {card[0]}\n Back: {card[1]}")
-        counter += 1
+    front_and_back, deck_choice = list_cards()
     changing = True
     while changing == True:
         card_to_change = int(input("What number card would you like to delete? "))
@@ -179,14 +156,9 @@ def change_card():
 def delete_deck():
     deleting = True
     while deleting == True:
-        counter = 1
-        cursor.execute("SELECT DISTINCT Deck FROM flashcards;")
-        decks_tuple = cursor.fetchall()
-        for distinct_deck_row in decks_tuple:
-            print(f"{counter}. {distinct_deck_row[0]}")
-            counter += 1
+        decks = list_decks()
         deck_to_edit = int(input("Which deck would you like to delete?\n"))
-        deck_choice = decks_tuple[deck_to_edit - 1][0]
+        deck_choice = decks[deck_to_edit - 1][0]
         confirmation = input(f"Are you sure you want to delete '{deck_choice}' (y/n)? ")
         if confirmation == "y":
             cursor.execute(f"""DELETE FROM flashcards WHERE Deck="{deck_choice}";""")
