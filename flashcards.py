@@ -13,11 +13,11 @@ def mode_select():
     elif choice.lower() == "study":
         study_flashcards()
     elif choice.lower() == "edit":
-        edit_select()
+        editing()
     elif choice.lower() == "exit":
         save_and_exit()
 
-        
+
 def create_flashcards():
     deck_name = input("What do you want to name your new deck? ")
     check_duplicate = cursor.execute(f"SELECT Deck FROM flashcards WHERE Deck='{deck_name}'").fetchone()
@@ -71,17 +71,8 @@ def study_flashcards():
 
 
 def edit_select():
-    edit_method = input("Would you like to add cards, delete cards, change cards, delete the whole deck, or exit? (add/delete/change/delete deck/exit)\n")
-    if edit_method.lower() == "add":
-        add_card()
-    elif edit_method.lower() == "delete":
-        delete_card()
-    elif edit_method.lower() == "change":
-        change_card()
-    elif edit_method.lower() == "delete deck":
-        delete_deck()
-    elif edit_method.lower() == "exit":
-        mode_select()
+    edit_method = input("Would you like to add cards, delete cards, change cards, delete the whole deck, or exit (add/delete/change/delete deck/exit)? ")
+    return edit_method
 
 
 def list_decks():
@@ -103,73 +94,50 @@ def list_cards():
     return front_and_back, deck_choice
 
 
-def add_card():
-    _, deck_choice = list_cards()
-    adding = True
-    while adding == True:    
-        card_front = input("What do you want on the front of this card? ")
-        card_back = input("What do you want on the back of this card? ")
-        confirmation = input(f"You are adding the following card to '{deck_choice}':\n Front: {card_front}\n Back: {card_back}\nAre you sure you want to make this addition (y/n)? ")
+def editing():
+    print("This")
+    edit_method = edit_select()
+    front_and_back, deck_choice = list_cards()
+    editing = True
+    while editing == True:
+        if edit_method.lower() == "add":
+            card_front = input("What do you want on the front of this card? ")
+            card_back = input("What do you want on the back of this card? ")
+            confirmation = input(f"You are adding the following card to '{deck_choice}':\n Front: {card_front}\n Back: {card_back}\nAre you sure you want to make this addition (y/n)? ")
+            sql_command = f"""INSERT INTO flashcards VALUES ("{deck_choice}", "{card_front}", "{card_back}");"""
+            continue_confirmation = "Your addition has been saved. Would you like to add another card (y/n)? "
+
+        elif edit_method.lower() == "delete":
+            card_to_delete = int(input("What number card would you like to delete? "))
+            confirmation = input(f"You are deleting the following card from '{deck_choice}':\n Front: {front_and_back[card_to_delete - 1][0]}\n Back: {front_and_back[card_to_delete - 1][1]}\nAre you sure you want to make these changes (y/n)? ")
+            sql_command = f"""DELETE FROM flashcards WHERE Front="{front_and_back[card_to_delete - 1][0]}" AND Back="{front_and_back[card_to_delete - 1][1]}";"""
+            continue_confirmation = "Your deletion has been saved. Would you like to delete another card (y/n)? "
+
+        elif edit_method.lower() == "change":
+            card_to_change = int(input("What number card would you like to change? "))
+            card_front = input("What do you want on the front of the card?\n")
+            card_back = input("What doo you want on the back of the card?\n")
+            confirmation = input(f"You are requesting update this card in {deck_choice} to:\n Front: {card_front}\n Back: {card_back}\nAre you sure you want to make these changes (y/n)? ")
+            sql_command = f"""UPDATE flashcards SET Front="{front_and_back[card_to_change- 1][0]}", Back="{front_and_back[card_to_change - 1][1]}" WHERE Front="{front_and_back[card_to_change- 1][0]}" AND Back="{front_and_back[card_to_change - 1][1]}";"""
+            continue_confirmation = "Your change has been saved. Would you like to change another card in this deck (y/n)? "
+
+        elif edit_method.lower() == "delete deck":
+            decks = list_decks()
+            deck_to_edit = int(input("Which deck would you like to delete?\n"))
+            deck_choice = decks[deck_to_edit - 1][0]
+            confirmation = input(f"Are you sure you want to delete '{deck_choice}' (y/n)? ")
+            sql_command = f"""DELETE FROM flashcards WHERE Front="{front_and_back[card_to_delete - 1][0]}" AND Back="{front_and_back[card_to_delete - 1][1]}";"""
+            continue_confirmation = "Your deletion has been saved. Would you like to delete another deck? "
+
+
         if confirmation == "y":
-            cursor.execute(f"""INSERT INTO flashcards VALUES ("{deck_choice}", "{card_front}", "{card_back}");""")
+            cursor.execute(sql_command)
             connection.commit()
-            continue_adding = input("Your addition has been saved. Would you like to add another card (y/n)? ")
-        else:
-            continue_adding = input("Would you like to try again (y/n)? ")
-        adding = False if continue_adding == "n" else True
+            continue_editing = input(continue_confirmation)
+        else: 
+            continue_editing = input("Would you like to try again (y/n)? ")
+        editing = False if continue_editing == "n" else True
     mode_select()
-
-
-
-def delete_card():
-    front_and_back, deck_choice = list_cards()
-    deleting = True
-    while deleting == True:
-        card_to_delete = int(input("What number card would you like to delete? "))
-        confirmation = input(f"You are deleting the following card from '{deck_choice}':\n Front: {front_and_back[card_to_delete - 1][0]}\n Back: {front_and_back[card_to_delete - 1][1]}\nAre you sure you want to make these changes (y/n)? ")
-        if confirmation == "y":
-            cursor.execute(f"""DELETE FROM flashcards WHERE Front="{front_and_back[card_to_delete - 1][0]}" AND Back="{front_and_back[card_to_delete - 1][1]}";""")
-            connection.commit()
-            continue_deleting = input("Your deletion has been saved. Would you like to delete another card (y/n)? ")
-        else:
-            continue_deleting = input("Would you like to try again (y/n)? ")
-        deleting = False if continue_deleting == "n" else True
-    edit_select()
-
-
-def change_card():
-    front_and_back, deck_choice = list_cards()
-    changing = True
-    while changing == True:
-        card_to_change = int(input("What number card would you like to change? "))
-        card_front = input("What do you want on the front of the card?\n")
-        card_back = input("What doo you want on the back of the card?\n")
-        confirmation = input(f"You are requesting update this card in {deck_choice} to:\n Front: {card_front}\n Back: {card_back}\nAre you sure you want to make these changes (y/n)? ")
-        if confirmation == "y":
-            cursor.execute(f"""UPDATE flashcards SET Front="{front_and_back[card_to_change- 1][0]}", Back="{front_and_back[card_to_change - 1][1]}" WHERE Front="{front_and_back[card_to_change- 1][0]}" AND Back="{front_and_back[card_to_change - 1][1]}";""")
-            connection.commit()
-            continue_changing = input("Your changes have been saved. Would you like to change another card in this deck (y/n)? ")
-        else:
-            continue_changing = input("Would you like to try again (y/n)? ")
-        changing = False if continue_changing == "n" else True
-    edit_select()
-
-
-def delete_deck():
-    deleting = True
-    while deleting == True:
-        decks = list_decks()
-        deck_to_edit = int(input("Which deck would you like to delete?\n"))
-        deck_choice = decks[deck_to_edit - 1][0]
-        confirmation = input(f"Are you sure you want to delete '{deck_choice}' (y/n)? ")
-        if confirmation == "y":
-            cursor.execute(f"""DELETE FROM flashcards WHERE Deck="{deck_choice}";""")
-            connection.commit()
-            continue_deleting = input("Your changes have been saved. Would you like to delete another deck? ")
-        else:
-            continue_deleting = input("Would you like to try again (y/n)? ")
-        deleting = False if continue_deleting == "n" else True
-    edit_select()
 
 
 def save_and_exit():
