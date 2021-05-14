@@ -5,6 +5,7 @@ connection = sqlite3.connect("/home/yaboiwierdal/Flashcards Python Project/pytho
 
 cursor = connection.cursor()
 
+
 def mode_select():
     choice = input("Would you like to create a new deck, study a current deck, edit a deck,  or exit the program (create/study/edit/exit)? ")
     if choice.lower() == "create":
@@ -16,6 +17,7 @@ def mode_select():
     elif choice.lower() == "exit":
         save_and_exit()
 
+        
 def create_flashcards():
     deck_name = input("What do you want to name your new deck? ")
     check_duplicate = cursor.execute(f"SELECT Deck FROM flashcards WHERE Deck='{deck_name}'").fetchone()
