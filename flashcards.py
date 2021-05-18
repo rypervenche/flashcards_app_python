@@ -18,14 +18,14 @@ class Card:
 
 def create_db():
     cursor.execute(
-        """CREATE TABLE IF NOT EXISTS notes (
+        """CREATE TABLE IF NOT EXISTS cards (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             deck_id INTEGER NOT NULL,
-            mandarin TEXT NOT NULL UNIQUE,
-            english TEXT NOT NULL,
+            front TEXT NOT NULL UNIQUE,
+            back TEXT NOT NULL,
             FOREIGN KEY(deck_id) REFERENCES decks(id)
-        )"""
-    )   
+        );"""
+    )
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS decks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,9 +37,12 @@ def create_db():
 
 def get_deck_id(deck_name):
     cursor.execute(
-        f"INSERT OR IGNORE INTO decks (name) VALUES ({deck_name})"
+        f"INSERT OR IGNORE INTO decks (name) VALUES {deck_name}"
     )
 
+    stmt = cursor.execute("SELECT id FROM decks WHERE name = ?")
+    stmt.Parameters.Add(deck_name)
+    #Figure out row later
 
 def update_db(deck_id, front, back):
     cursor.execute(
@@ -50,9 +53,12 @@ def update_db(deck_id, front, back):
 
 def get_cards(deck_id):
     cards = dict()
-    for row in cursor.execute(f"""SELECT notes.id, decks.name, mandarin, english FROM notes INNER JOIN decks ON notes.deck_id = decks.id WHERE deck_id = {deck_id}""")
-        card = Card(row[0], row[1], row[2], row[3])
+    for row in cursor.execute(f"SELECT notes.id, decks.name, mandarin, english FROM notes INNER JOIN decks ON notes.deck_id = decks.id WHERE deck_id = {deck_id}"):
+        card = f"{row[0]}, {row[1]}, {row[2]}, {row[3]}"
         cards[row[2]] = card
+
+    for card in card_iter 
+
     return cards
 
 
@@ -66,8 +72,8 @@ def main():
     cards = get_cards(1)
 
     for card in cards:
-        print(f"#{card}")
-
+        print(card)
+        print(cards.get(card))
 
 main()
 
