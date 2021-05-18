@@ -37,12 +37,13 @@ def create_db():
 
 def get_deck_id(deck_name):
     cursor.execute(
-        f"INSERT OR IGNORE INTO decks (name) VALUES {deck_name}"
+        f"INSERT OR IGNORE INTO decks (name) VALUES ({deck_name})"
     )
 
     stmt = cursor.execute("SELECT id FROM decks WHERE name = ?")
     stmt.Parameters.Add(deck_name)
-    #Figure out row later
+    return stmt.fetchone()
+
 
 def update_db(deck_id, front, back):
     cursor.execute(
@@ -56,24 +57,25 @@ def get_cards(deck_id):
     for row in cursor.execute(f"SELECT notes.id, decks.name, mandarin, english FROM notes INNER JOIN decks ON notes.deck_id = decks.id WHERE deck_id = {deck_id}"):
         card = f"{row[0]}, {row[1]}, {row[2]}, {row[3]}"
         cards[row[2]] = card
-
-    for card in card_iter 
-
     return cards
 
 
 def main():
     create_db()
 
+    chosen_db = "test"
+    deck_id = get_deck_id(chosen_db)
+
     update_db(1, "Доброе утро", "Good morning")
     update_db(1, "Добрый день", "Good afternoon")
     update_db(1, "Добрый вечер", "Good evening")
 
-    cards = get_cards(1)
+    cards = get_cards(deck_id)
 
     for card in cards:
         print(card)
         print(cards.get(card))
+
 
 main()
 
